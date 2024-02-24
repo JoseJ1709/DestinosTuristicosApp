@@ -6,12 +6,33 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.ArrayAdapter
-import android.widget.AdapterView
-import android.view.View
-
+import org.json.JSONObject
 class MainActivity : AppCompatActivity() {
 
     private val categorias = arrayOf("Todos", "Playas", "Montañas", "Ciudades Históricas", "Maravillas del Mundo", "Selvas")
+    companion object {
+        var favoritosList = mutableListOf<JSONObject>()
+
+        fun addToFavoritos(destino: JSONObject) {
+                favoritosList.add(destino)
+        }
+
+        fun removeFromFavoritos(destino: JSONObject) {
+            val iterator = favoritosList.iterator()
+            while (iterator.hasNext()) {
+                val item = iterator.next()
+                if (item.getString("nombre") == destino.getString("nombre") &&
+                    item.getString("pais") == destino.getString("pais") &&
+                    item.getString("categoria") == destino.getString("categoria") &&
+                    item.getString("plan") == destino.getString("plan") &&
+                    item.getString("precio") == destino.getString("precio")
+                ) {
+                    iterator.remove()
+                }
+            }
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         Recomendaciones.setOnClickListener { Recomendaciones() }
     }
 
+
     private fun explorarDestinos(Categorias:Spinner) {
         val categoriaSeleccionada = Categorias.selectedItem.toString()
         val intent = Intent(this, ExplorarActivity::class.java).apply {
@@ -35,7 +57,10 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun Favoritos() {}
+    private fun Favoritos() {
+        val intent = Intent(this, FavoritosActivity::class.java)
+        startActivity(intent)
+    }
 
     private fun Recomendaciones() {}
 
