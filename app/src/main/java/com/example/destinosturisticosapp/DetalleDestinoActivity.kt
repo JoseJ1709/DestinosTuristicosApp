@@ -2,10 +2,16 @@ package com.example.destinosturisticosapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import org.json.JSONObject
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class DetalleDestinoActivity : AppCompatActivity() {
 
@@ -29,6 +35,7 @@ class DetalleDestinoActivity : AppCompatActivity() {
         precioTextView.text = "USD " + destino.getString("precio")
         check()
         CambiarButton()
+        fetchWeatherData(destino.getString("nombre"))
     }
     private fun check() {
         val listaPrincipal = MainActivity.favoritosList
@@ -63,6 +70,30 @@ class DetalleDestinoActivity : AppCompatActivity() {
             }
         }
     }
-
-
+    private fun fetchWeatherData(cityName: String) {
+        val retrofit = Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl("https://api.weatherapi.com/v1/")
+            .build()
+            .create(ApiInterface::class.java)
+        val response = retrofit.getWeatherData(cityName, "690a1a323163441e87b221704242602")
+        response.enqueue(object : Callback<WeatherApp> {
+            override fun onResponse(call: Call<WeatherApp>, response: Response<WeatherApp>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    val temperature = responseBody?.current?.temp_c
+                    updateTemperature(temperature)
+                } else {
+                    Log.e("API_RESPONSE", "Error fetching weather data: ${response.message()}")
+                }
+            }
+            override fun onFailure(call: Call<WeatherApp>, t: Throwable) {
+                Log.e("API_RESPONSE", "Error fetching weather data", t)
+            }
+        })
+    }
+    private fun updateTemperature(temperature: Double?) {
+        val txtViewTemperaturaC = findViewById<TextView>(R.id.Temperatura)
+        txtViewTemperaturaC.text = temperature?.toString() + "ºC"
+    }
 }
