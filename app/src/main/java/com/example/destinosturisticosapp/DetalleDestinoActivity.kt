@@ -3,6 +3,7 @@ package com.example.destinosturisticosapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -15,7 +16,8 @@ import retrofit2.Response
 
 class DetalleDestinoActivity : AppCompatActivity() {
 
-    private lateinit var favoritosButton: Button
+    private lateinit var quitarButton: Button
+    private lateinit var agregarButton: Button
     private lateinit var destino: JSONObject
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,15 +29,29 @@ class DetalleDestinoActivity : AppCompatActivity() {
         val categoriaTextView = findViewById<TextView>(R.id.categoria)
         val planTextView = findViewById<TextView>(R.id.plan)
         val precioTextView = findViewById<TextView>(R.id.precio)
-        favoritosButton = findViewById<Button>(R.id.favoritosButton)
+        agregarButton = findViewById<Button>(R.id.agregarButton)
+        quitarButton = findViewById<Button>(R.id.quitarButton)
         nombreTextView.text = destino.getString("nombre")
         paisTextView.text = destino.getString("pais")
         categoriaTextView.text = destino.getString("categoria")
         planTextView.text = destino.getString("plan")
         precioTextView.text = "USD " + destino.getString("precio")
         check()
-        CambiarButton()
+        agregarButton.setOnClickListener(agregarButtonOnClickListener)
+        quitarButton.setOnClickListener(quitarButtonOnClickListener)
         fetchWeatherData(destino.getString("nombre"))
+    }
+    private val agregarButtonOnClickListener = View.OnClickListener {
+        MainActivity.addToFavoritos(destino)
+        agregarButton.isEnabled = false
+        quitarButton.isEnabled = true
+        Toast.makeText(this, "Añadido a Favoritos", Toast.LENGTH_SHORT).show()
+    }
+
+    private val quitarButtonOnClickListener = View.OnClickListener {
+        MainActivity.removeFromFavoritos(destino)
+        quitarButton.isEnabled = false
+        agregarButton.isEnabled = true
     }
     private fun check() {
         val listaPrincipal = MainActivity.favoritosList
@@ -52,24 +68,14 @@ class DetalleDestinoActivity : AppCompatActivity() {
             }
         }
         if (esta) {
-            favoritosButton.text = "Quitar Favoritos"
+            quitarButton.isEnabled = true
+            agregarButton.isEnabled = false
         } else {
-            favoritosButton.text = "Añadir a Favoritos"
+            agregarButton.isEnabled = true
+            quitarButton.isEnabled = false
         }
     }
 
-    private fun CambiarButton() {
-        favoritosButton.setOnClickListener {
-            if (favoritosButton.text == "Quitar Favoritos") {
-                MainActivity.removeFromFavoritos(destino)
-                favoritosButton.text = "Añadir a Favoritos"
-            } else {
-                MainActivity.addToFavoritos(destino)
-                favoritosButton.text = "Quitar Favoritos"
-                Toast.makeText(this, "Añadido a Favoritos", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
     private fun fetchWeatherData(cityName: String) {
         val retrofit = Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())

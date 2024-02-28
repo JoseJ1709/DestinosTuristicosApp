@@ -62,7 +62,14 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/favoritosButton"
+        android:id="@+id/quitarButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quitar de Favoritos"
+        app:layout_constraintBottom_toTopOf="@id/agregarButton"
+        android:layout_margin="16dp" />
+    <Button
+        android:id="@+id/agregarButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Añadir a Favoritos"
