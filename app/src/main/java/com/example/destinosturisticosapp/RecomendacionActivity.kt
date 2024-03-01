@@ -28,7 +28,7 @@ class RecomendacionActivity : AppCompatActivity() {
         if (categoriaMasFrecuente == "NA") {
             nombreTextView.text = "NA"
         } else {
-            val destinoAleatorio = obtenerDestinoAleatorio(destinos, categoriaMasFrecuente)
+            val destinoAleatorio = obtenerDestinoAleatorio(categoriaMasFrecuente)
             if (destinoAleatorio != null) {
                 nombreTextView.text = destinoAleatorio.getString("nombre")
                 paisTextView.text = destinoAleatorio.getString("pais")
@@ -53,10 +53,9 @@ class RecomendacionActivity : AppCompatActivity() {
         val categoriaMasFrecuente = categoriasContadas.maxByOrNull { it.value }!!.key
         return categoriaMasFrecuente
     }
-    fun obtenerDestinoAleatorio(destinos: JSONArray, categoria: String): JSONObject? {
+    fun obtenerDestinoAleatorio(categoria: String): JSONObject? {
         val destinosEnCategoria = mutableListOf<JSONObject>()
-        for (i in 0 until destinos.length()) {
-            val destino = destinos.getJSONObject(i)
+        for (destino in MainActivity.favoritosList) {
             if (destino.getString("categoria") == categoria) {
                 destinosEnCategoria.add(destino)
             }
